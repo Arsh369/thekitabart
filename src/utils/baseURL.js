@@ -1,5 +1,5 @@
 const getBaseUrl = () => {
-    return "http://localhost:5000"
+    return "https://thekitabartbe.onrender.com"
 }
 
 export default getBaseUrl;
