@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, User, Heart, ShoppingCart } from "lucide-react";
+import { Search, User, Package, ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -149,13 +149,12 @@ const Home = () => {
               {/* Conditional rendering for Sign Up button or User Profile image */}
               {isLoggedIn ? (
                 // Show profile image if logged in
-                <div className="cursor-pointer">
-                  <img
-                    src="https://images.unsplash.com/photo-1755004609214-c252674df1ca?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw3fHx8ZW58MHx8fHx8"
-                    alt="User Profile"
-                    className="w-6 h-6 rounded-full object-cover"
-                  />
-                </div>
+              <div className="relative">
+                <Package
+                  onClick={() => navigate("/order")}
+                  className="w-5 h-5 text-gray-600 cursor-pointer hover:text-blue-600"
+                />
+              </div>
               ) : (
                 // Show Sign up button if not logged in
                 <div className="hidden sm:flex gap-4">

@@ -3,18 +3,12 @@ import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const BookDetails = () => {
-  // Get the book ID from the URL parameters
   const { id } = useParams();
-
-  // State for managing the book data
   const [book, setBook] = useState(null);
-  // State for managing the quantity of the book to be purchased
   const [quantity, setQuantity] = useState(1);
-  // State for loading and error handling
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to handle quantity change
   const handleQuantityChange = (type) => {
     if (type === 'increment') {
       setQuantity(prevQuantity => prevQuantity + 1);
@@ -23,13 +17,11 @@ const BookDetails = () => {
     }
   };
 
-  // Fetch book details when the component mounts or the ID changes
   useEffect(() => {
     const fetchBookDetails = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/books/${id}`,
-          { withCredentials: false }
+          `${import.meta.env.VITE_BACKEND_URL}/api/books/${id}`
         );
         setBook(res.data);
         setLoading(false);
@@ -43,34 +35,46 @@ const BookDetails = () => {
     fetchBookDetails();
   }, [id]);
 
-  // Conditional rendering for loading, error, and not found states
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
-        <p className="text-xl text-gray-600">Loading book details...</p>
-      </div>
+  // Add to Cart handler
+  const handleAddToCart = () => {
+    const existingCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+
+    const existingItemIndex = existingCart.findIndex(
+      item => item._id === book._id
     );
+
+    if (existingItemIndex !== -1) {
+      // If already exists, update quantity
+      existingCart[existingItemIndex].quantity += quantity;
+    } else {
+      // Add new book to cart
+      existingCart.push({ ...book, quantity });
+    }
+
+    localStorage.setItem("cartItems", JSON.stringify(existingCart));
+    alert(`${book.title} has been added to your cart!`);
+  };
+
+  if (loading) {
+    return <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
+      <p className="text-xl text-gray-600">Loading book details...</p>
+    </div>;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
-        <p className="text-xl text-red-600">{error}</p>
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
+      <p className="text-xl text-red-600">{error}</p>
+    </div>;
   }
-  
+
   if (!book) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
-        <p className="text-xl text-gray-600">Book not found.</p>
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-100 flex items-center justify-center font-sans">
+      <p className="text-xl text-gray-600">Book not found.</p>
+    </div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans p-6 lg:p-12">
-      {/* Back to Books Link */}
       <Link to="/" className="inline-flex items-center text-indigo-600 hover:text-indigo-800 transition-colors duration-200">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
           <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -80,7 +84,6 @@ const BookDetails = () => {
 
       <div className="mt-8 bg-white rounded-lg shadow-xl p-8 lg:p-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Left side: Book Image */}
           <div className="w-full lg:w-1/3 flex-shrink-0">
             <img
               src={book.image}
@@ -89,29 +92,23 @@ const BookDetails = () => {
             />
           </div>
 
-          {/* Right side: Book Details */}
           <div className="w-full lg:w-2/3">
             <h1 className="text-4xl font-bold text-gray-800 mb-2">{book.title}</h1>
             <h2 className="text-xl font-medium text-gray-600 mb-4">by {book.author}</h2>
 
-            
-            {/* Categories */}
             <div className="flex space-x-2 mb-6">
               <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm font-semibold rounded-full">
                 {book.category || 'N/A'}
               </span>
             </div>
 
-            {/* Price */}
             <p className="text-4xl font-bold text-gray-800 mb-6">₹{book.price.toFixed(2)}</p>
 
-            {/* Description */}
             <div className="mb-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Description</h3>
               <p className="text-gray-600 leading-relaxed">{book.description}</p>
             </div>
 
-            {/* Quantity Selector */}
             <div className="flex items-center space-x-4 mb-6">
               <span className="text-lg font-bold text-gray-800">Quantity</span>
               <div className="flex items-center border rounded-full overflow-hidden">
@@ -131,8 +128,8 @@ const BookDetails = () => {
               </div>
             </div>
 
-            {/* Add to Cart Button */}
             <button
+              onClick={handleAddToCart}
               className="w-full lg:w-auto flex items-center justify-center px-8 py-3 bg-indigo-600 text-white text-lg font-semibold rounded-full shadow-lg hover:bg-indigo-700 transition-colors duration-300 transform hover:-translate-y-1"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

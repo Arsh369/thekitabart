@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import countries from "../assets/countries";
+import axios from "axios";
+
 const Checkout = ({ cartItems, setCartItems }) => {
   const navigate = useNavigate();
   const [subtotal, setSubtotal] = useState(0);
   const [tax, setTax] = useState(0);
   const [total, setTotal] = useState(0);
 
+  const userId = localStorage.getItem("userId");
   // Form state for customer information
   const [customerInfo, setCustomerInfo] = useState({
     fullName: "",
@@ -61,28 +64,47 @@ const Checkout = ({ cartItems, setCartItems }) => {
     setDeliveryAddress((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlePlaceOrder = () => {
-    // Here you would typically handle the order placement logic:
-    // 1. Send the customerInfo, deliveryAddress, and cartItems to your backend API.
-    // 2. Handle the response (e.g., show a success message).
-    // 3. Clear the cart by calling setCartItems([]).
-    // 4. Navigate to an order confirmation page.
+  const handlePlaceOrder = async () => {
+    try {
+      // Order data with books
+      const orderData = {
+        fullName: customerInfo.fullName,
+        email: customerInfo.email,
+        phoneNumber: customerInfo.phoneNumber,
+        streetAddress: deliveryAddress.streetAddress,
+        city: deliveryAddress.city,
+        state: deliveryAddress.state,
+        zipCode: deliveryAddress.zipCode,
+        country: deliveryAddress.country,
+        deliveryNote: deliveryNote,
+        paymentMethod,
+        books: cartItems.map((item) => ({
+          title: item.title,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        total,
+        userId,
+      };
 
-    // For now, we'll just log the data and clear the cart.
-    console.log("Placing order with the following data:", {
-      customerInfo,
-      deliveryAddress,
-      deliveryNote,
-      paymentMethod,
-      cartItems,
-      total,
-    });
+      console.log("Placing order with the following data:", orderData);
 
-    // Clear the cart after placing the order
-    setCartItems([]);
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
+        orderData
+      );
 
-    // Redirect to the home page or a confirmation page
-    navigate("/");
+      console.log("Order placed successfully:", data);
+
+      setCartItems([]);
+      navigate("/");
+    } catch (error) {
+      console.error(
+        "Error placing order:",
+        error.response?.data || error.message
+      );
+      alert("Failed to place order. Please try again.");
+    }
   };
 
   return (
