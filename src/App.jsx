@@ -7,6 +7,7 @@ import BookDetails from './pages/BookDetails'
 import ShoppingCart from './pages/ShoppingCart'
 import Checkout from './pages/Checkout'
 import Order from './pages/Order'
+import AdminBooks from './pages/AdminBooks'
 const App = () => {
 
     const [cartItems, setCartItems] = useState(() => {
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/cart" element={<ShoppingCart cartItems={cartItems} setCartItems={setCartItems} />} />
         <Route path="/checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems} />} />
         <Route path="/order" element={<Order />} />
+        <Route path="/admin" element={<AdminBooks />} />
       </Routes>
     </Router>
   )
