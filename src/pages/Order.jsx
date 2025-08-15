@@ -6,13 +6,14 @@ const Order = () => {
   const [loading, setLoading] = useState(true);
 
   const userId = localStorage.getItem("userId");
-  
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
         const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders`,{
-          params: {
-            userId,
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         });
         setOrders(data);
