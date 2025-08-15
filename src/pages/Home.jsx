@@ -9,10 +9,40 @@ const Home = () => {
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  // State for the selected category
   const [selectedCategory, setSelectedCategory] = useState("All Books");
 
+  // State to check if a user token is present
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // State for managing the shopping cart. Load from localStorage on initial render.
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const storedCart = localStorage.getItem("cartItems");
+      return storedCart ? JSON.parse(storedCart) : [];
+    } catch (error) {
+      console.error("Failed to parse cart items from localStorage", error);
+      return [];
+    }
+  });
+
+  // Use a useEffect hook to save the cart items to localStorage whenever the state changes.
   useEffect(() => {
+    try {
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    } catch (error) {
+      console.error("Failed to save cart items to localStorage", error);
+    }
+  }, [cartItems]);
+
+  useEffect(() => {
+    // Check for a token in local storage or cookies to determine login status
+    const token = localStorage.getItem("token"); // or use a more robust check
+    if (token) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+
     const fetchBooks = async () => {
       try {
         const res = await axios.get(
@@ -67,6 +97,25 @@ const Home = () => {
     navigate(`/books/${bookId}`);
   };
 
+  const handleAddToCart = (book) => {
+    // Check if the item already exists in the cart
+    const existingItem = cartItems.find((item) => item._id === book._id);
+
+    if (existingItem) {
+      // If it exists, update the quantity
+      setCartItems(
+        cartItems.map((item) =>
+          item._id === book._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
+    } else {
+      // If it's a new item, add it to the cart with quantity 1
+      setCartItems([...cartItems, { ...book, quantity: 1 }]);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -96,24 +145,28 @@ const Home = () => {
                   className="w-5 h-5 text-gray-600 cursor-pointer hover:text-blue-600"
                 />
               </div>
-              {/* Desktop buttons */}
-              <div className="hidden sm:flex gap-4">
-                <button
-                  onClick={() => navigate("/register")}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
-                >
-                  Sign up
-                </button>
-              </div>
 
-              {/* Mobile profile icon */}
-              <div className="block sm:hidden">
-                <User
-                  size={24}
-                  className="text-gray-700 cursor-pointer"
-                  onClick={() => navigate("/profile")}
-                />
-              </div>
+              {/* Conditional rendering for Sign Up button or User Profile image */}
+              {isLoggedIn ? (
+                // Show profile image if logged in
+                <div className="cursor-pointer">
+                  <img
+                    src="https://images.unsplash.com/photo-1755004609214-c252674df1ca?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw3fHx8ZW58MHx8fHx8"
+                    alt="User Profile"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                </div>
+              ) : (
+                // Show Sign up button if not logged in
+                <div className="hidden sm:flex gap-4">
+                  <button
+                    onClick={() => navigate("/register")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Sign up
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -210,7 +263,13 @@ const Home = () => {
                       </span>
                     )}
                   </div>
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors mt-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(book);
+                    }}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors mt-4 cursor-pointer"
+                  >
                     Add to Cart
                   </button>
                 </div>
