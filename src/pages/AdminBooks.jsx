@@ -29,39 +29,38 @@ export default function AdminBooks() {
   }, []);
 
   // Create or Update book
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const config = {
-    headers: { Authorization: `Bearer ${token}` }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    if (editId) {
+      await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/books/${editId}`,
+        form,
+        config
+      );
+    } else {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/books`,
+        form,
+        config
+      );
+    }
+
+    setForm({
+      title: "",
+      author: "",
+      price: "",
+      originalPrice: "",
+      image: "",
+      category: "",
+      description: "",
+    });
+    setEditId(null);
+    fetchBooks();
   };
-
-  if (editId) {
-    await axios.put(
-      `${import.meta.env.VITE_BACKEND_URL}/api/books/${editId}`,
-      form,
-      config
-    );
-  } else {
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/books`,
-      form,
-      config
-    );
-  }
-
-  setForm({
-    title: "",
-    author: "",
-    price: "",
-    originalPrice: "",
-    image: "",
-    category: "",
-    description: "",
-  });
-  setEditId(null);
-  fetchBooks();
-};
-
 
   // Delete book
   const handleDelete = async (id) => {
@@ -86,11 +85,11 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <div className="p-6">
+    <div className="max-w-7xl w-full mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Admin - Manage Books</h1>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="mb-6 space-y-2">
+      <form onSubmit={handleSubmit} className="mb-6 space-y-2 w-full">
         <input
           type="text"
           placeholder="Title"
@@ -131,12 +130,13 @@ const handleSubmit = async (e) => {
           className="border p-2 w-full"
           required
         />
-        <select 
-        className="border p-2 w-full"
-        value={form.category}
-        onChange={(e) => setForm({ ...form, category: e.target.value })}
-        required
-        name="category" id="">
+        <select
+          className="border p-2 w-full"
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+          required
+        >
+          <option value="">Select Category</option>
           <option value="Fiction">Fiction</option>
           <option value="Non-Fiction">Non-Fiction</option>
           <option value="Education">Education</option>
@@ -160,47 +160,62 @@ const handleSubmit = async (e) => {
       </form>
 
       {/* Book List */}
-      <table className="w-full border">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="p-2 border">Title</th>
-            <th className="p-2 border">Author</th>
-            <th className="p-2 border">Price</th>
-            <th className="p-2 border">Original Price</th>
-            <th className="p-2 border">Image URL</th>
-            <th className="p-2 border">Category</th>
-            <th className="p-2 border">Description</th>
-            <th className="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {books.map((book) => (
-            <tr key={book._id}>
-              <td className="p-2 border">{book.title}</td>
-              <td className="p-2 border">{book.author}</td>
-              <td className="p-2 border">₹{book.price}</td>
-              <td className="p-2 border">₹{book.originalPrice}</td>
-              <td className="p-2 border">{book.image}</td>
-              <td className="p-2 border">{book.category}</td>
-              <td className="p-2 border">{book.description}</td>
-              <td className="p-2 border flex gap-2">
-                <button
-                  onClick={() => handleEdit(book)}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(book._id)}
-                  className="bg-red-600 text-white px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </td>
+      <div className="overflow-x-auto border rounded">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-2 border">Title</th>
+              <th className="p-2 border">Author</th>
+              <th className="p-2 border">Price</th>
+              <th className="p-2 border">Original Price</th>
+              <th className="p-2 border">Image</th>
+              <th className="p-2 border">Category</th>
+              <th className="p-2 border">Description</th>
+              <th className="p-2 border">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {books.map((book) => (
+              <tr key={book._id} className="text-sm">
+                <td className="p-2 border">{book.title}</td>
+                <td className="p-2 border">{book.author}</td>
+                <td className="p-2 border">₹{book.price}</td>
+                <td className="p-2 border">₹{book.originalPrice}</td>
+                <td className="p-2 border">
+                  {/* Show thumbnail if image URL */}
+                  {book.image ? (
+                    <img
+                      src={book.image}
+                      alt={book.title}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  ) : (
+                    "No Image"
+                  )}
+                </td>
+                <td className="p-2 border">{book.category}</td>
+                <td className="p-2 border max-w-xs truncate">
+                  {book.description}
+                </td>
+                <td className="p-2 border flex gap-2">
+                  <button
+                    onClick={() => handleEdit(book)}
+                    className="bg-yellow-500 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(book._id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
