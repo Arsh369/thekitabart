@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function AdminBooks() {
   const [books, setBooks] = useState([]);
@@ -18,10 +19,14 @@ export default function AdminBooks() {
 
   // Fetch all books
   const fetchBooks = async () => {
-    const { data } = await axios.get(
-      `${import.meta.env.VITE_BACKEND_URL}/api/books`
-    );
-    setBooks(data);
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/books`
+      );
+      setBooks(data);
+    } catch (error) {
+      toast.error("Failed to fetch books ❌");
+    }
   };
 
   useEffect(() => {
@@ -35,39 +40,50 @@ export default function AdminBooks() {
       headers: { Authorization: `Bearer ${token}` },
     };
 
-    if (editId) {
-      await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/api/books/${editId}`,
-        form,
-        config
-      );
-    } else {
-      await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/books`,
-        form,
-        config
-      );
-    }
+    try {
+      if (editId) {
+        await axios.put(
+          `${import.meta.env.VITE_BACKEND_URL}/api/books/${editId}`,
+          form,
+          config
+        );
+        toast.success("Book updated successfully ✅");
+      } else {
+        await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/books`,
+          form,
+          config
+        );
+        toast.success("Book added successfully 🎉");
+      }
 
-    setForm({
-      title: "",
-      author: "",
-      price: "",
-      originalPrice: "",
-      image: "",
-      category: "",
-      description: "",
-    });
-    setEditId(null);
-    fetchBooks();
+      setForm({
+        title: "",
+        author: "",
+        price: "",
+        originalPrice: "",
+        image: "",
+        category: "",
+        description: "",
+      });
+      setEditId(null);
+      fetchBooks();
+    } catch (error) {
+      toast.error("Something went wrong while saving ❌");
+    }
   };
 
   // Delete book
   const handleDelete = async (id) => {
-    await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/books/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    fetchBooks();
+    try {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/books/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Book deleted 🗑️");
+      fetchBooks();
+    } catch (error) {
+      toast.error("Failed to delete book ❌");
+    }
   };
 
   // Edit book
@@ -82,6 +98,7 @@ export default function AdminBooks() {
       description: book.description,
     });
     setEditId(book._id);
+    toast("Editing mode enabled ✏️");
   };
 
   return (
@@ -182,7 +199,6 @@ export default function AdminBooks() {
                 <td className="p-2 border">₹{book.price}</td>
                 <td className="p-2 border">₹{book.originalPrice}</td>
                 <td className="p-2 border">
-                  {/* Show thumbnail if image URL */}
                   {book.image ? (
                     <img
                       src={book.image}

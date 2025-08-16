@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
-
+import toast from 'react-hot-toast';
 const BookDetails = () => {
   const { id } = useParams();
   const [book, setBook] = useState(null);
@@ -52,7 +52,7 @@ const BookDetails = () => {
     }
 
     localStorage.setItem("cartItems", JSON.stringify(existingCart));
-    alert(`${book.title} has been added to your cart!`);
+    toast.success(`${book.title} has been added to your cart!`);
   };
 
   if (loading) {

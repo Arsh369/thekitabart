@@ -8,6 +8,7 @@ import ShoppingCart from './pages/ShoppingCart'
 import Checkout from './pages/Checkout'
 import Order from './pages/Order'
 import AdminBooks from './pages/AdminBooks'
+import { Toaster } from "react-hot-toast"
 const App = () => {
 
     const [cartItems, setCartItems] = useState(() => {
@@ -41,6 +42,7 @@ const App = () => {
         <Route path="/order" element={<Order />} />
         <Route path="/admin/1797" element={<AdminBooks />} />
       </Routes>
+      <Toaster position='top-right' reverseOrder={false} />
     </Router>
   )
 }

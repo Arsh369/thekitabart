@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import countries from "../assets/countries";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const Checkout = ({ cartItems, setCartItems }) => {
   const navigate = useNavigate();
@@ -103,7 +104,7 @@ const Checkout = ({ cartItems, setCartItems }) => {
         "Error placing order:",
         error.response?.data || error.message
       );
-      alert("Failed to place order. Please try again.");
+      toast.error("Failed to place order. Please try again.");
     }
   };
 
