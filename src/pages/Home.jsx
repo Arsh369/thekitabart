@@ -85,11 +85,11 @@ const Home = () => {
   // The categories for the filter
   const categories = [
     "All Books",
-    "Fiction",
-    "Non-fiction",
-    "Education",
-    "Children",
-    "Comics",
+    "History",
+    "Novel",
+    "Stories",
+    "Poetry",
+    "Motivational",
     "Other",
   ];
 

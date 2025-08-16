@@ -154,11 +154,11 @@ export default function AdminBooks() {
           required
         >
           <option value="">Select Category</option>
-          <option value="Fiction">Fiction</option>
-          <option value="Non-Fiction">Non-Fiction</option>
-          <option value="Education">Education</option>
-          <option value="Children">Children</option>
-          <option value="Comics">Comics</option>
+          <option value="History">History</option>
+          <option value="Novel">Novel</option>
+          <option value="Stories">Stories</option>
+          <option value="Poetry">Poetry</option>
+          <option value="Motivational">Motivational</option>
           <option value="Other">Other</option>
         </select>
         <textarea
